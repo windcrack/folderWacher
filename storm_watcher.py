@@ -7,15 +7,39 @@ import threading
 from pystray import Icon, MenuItem, Menu
 from PIL import Image, ImageDraw
 from win10toast import ToastNotifier
+import tkinter as tk
+from tkinter import filedialog
+import json
 
+CONFIG_FILE = os.path.join(get_base_dir(), "config.json")
 
-WATCH_PATH = "F:/work"  # ← Укажи нужный путь
 APP_NAME = "PhpStormWatcher"
 SEEN_FOLDERS = set()
 ATIME_TRACKER = {}
 notifier = ToastNotifier()
 
+def load_or_choose_watch_path():
+    if os.path.exists(CONFIG_FILE):
+        with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+            return config.get("watch_path")
 
+    # GUI-выбор папки
+    root = tk.Tk()
+    root.withdraw()
+    selected_path = filedialog.askdirectory(title="Выберите папку с проектами PhpStorm")
+
+    if not selected_path:
+        print("❌ Папка не выбрана. Выход.")
+        exit(1)
+
+    with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
+        json.dump({"watch_path": selected_path}, f, ensure_ascii=False, indent=4)
+
+    return selected_path
+
+
+WATCH_PATH = load_or_choose_watch_path() # ← Укажи нужный путь
 def create_icon():
     # Простая иконка: серая круглая точка
     image = Image.new('RGB', (64, 64), color=(100, 100, 100))
