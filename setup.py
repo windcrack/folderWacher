@@ -23,7 +23,7 @@ build_options = {
 
 setup(
     name="PhpStormWatcher",
-    version="1.0",
+    version="1.1",
     description="Отслеживание открытия проектов PhpStorm",
     options={"build_exe": build_options},
     executables=executables

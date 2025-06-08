@@ -11,6 +11,10 @@ import tkinter as tk
 from tkinter import filedialog
 import json
 
+def get_base_dir():
+    # Путь рядом с .exe или .py
+    return os.path.dirname(os.path.abspath(sys.argv[0]))
+
 CONFIG_FILE = os.path.join(get_base_dir(), "config.json")
 
 APP_NAME = "PhpStormWatcher"
@@ -31,6 +35,7 @@ def load_or_choose_watch_path():
 
     if not selected_path:
         print("❌ Папка не выбрана. Выход.")
+        time.sleep(3)
         exit(1)
 
     with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
@@ -62,12 +67,8 @@ def run_tray():
 
 def get_prefix():
     weekday = datetime.datetime.now().weekday()
-    return "Делал в пятницу\n" if weekday == 4 else "Делал сегодня\n"
-
-
-def get_base_dir():
-    # Путь рядом с .exe или .py
-    return os.path.dirname(os.path.abspath(sys.argv[0]))
+    print(f"[DEBUG] Weekday: {weekday}")
+    return "Делал в пятницу\n" if weekday == 4 else "Делал вчера\n"
 
 
 def get_log_file_path():
@@ -90,7 +91,7 @@ def write_to_log(folder_path):
             return
 
     with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(f"{folder_name}\n")
+        f.write(f"— {folder_name}\n")
 
     print(f"[LOGGED] {folder_name}")
     notifier.show_toast("PhpStorm открыт", folder_name, duration=4, threaded=True)
@@ -148,7 +149,7 @@ threading.Thread(target=run_tray, daemon=True).start()
 
 if __name__ == "__main__":
     print(f"👁 Следим за открытиями PhpStorm в: {WATCH_PATH}")
-    add_to_autostart()
+    # add_to_autostart()
     init_tracker()
 
     try:
